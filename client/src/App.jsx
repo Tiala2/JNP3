@@ -34,6 +34,8 @@ export default function App() {
   const [screen, setScreen] = useState("login"); // "login", "menu", "game"
   const [user, setUser] = useState("");
   const [state, setState] = useState(initialState());
+  const [ranking, setRanking] = useState([]);
+  const [showRanking, setShowRanking] = useState(false);
 
   // Conta monstros e curas no tabuleiro
   function countObjects(objects) {
@@ -261,6 +263,17 @@ export default function App() {
     setState(initialState());
   }
 
+  async function fetchRanking() {
+    const res = await fetch('/api/ranking');
+    const data = await res.json();
+    setRanking(data.ranking);
+    setShowRanking(true);
+  }
+
+  function handleCloseRanking() {
+    setShowRanking(false);
+  }
+
   // Troca de telas
   if (screen === "login") {
     return <Login onLogin={handleLogin} />;
@@ -272,6 +285,18 @@ export default function App() {
         <h1>Bem-vindo(a), {user}!</h1>
         <button className={styles.shoot} onClick={handleStart}>Iniciar Jogo</button>
         <button className={styles.restart} onClick={handleExit}>Sair</button>
+        {showRanking && (
+          <div className={styles.menu_container}>
+            <h2>Ranking</h2>
+            <ol>
+              {ranking.map((r, i) => (
+                <li key={r.username}>{r.username}: {r.score}</li>
+              ))}
+            </ol>
+            <button className={styles.restart} onClick={handleCloseRanking}>Fechar</button>
+          </div>
+        )}
+        <button className={styles.shoot} onClick={fetchRanking}>Ver Ranking</button>
       </div>
     );
   }
@@ -309,7 +334,7 @@ export default function App() {
               <button onClick={() => movePlayer("d")}><FaArrowDown size={24} /></button>
               <div></div>
             </div>
-            <button className={styles.shoot}>
+            <button className={styles.shoot} onClick={attack}>
               <FaCrosshairs size={20} style={{ marginRight: 8 }} />
               ATIRAR
             </button>

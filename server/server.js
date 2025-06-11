@@ -10,7 +10,7 @@ app.use(cors());
 app.use(express.json());
 app.use('/api', gameRoutes);
 
-// Servir front-end buildado em produção
+// Servir front-end em produção
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, '../client/dist')));
   app.get('*', (req, res) => {
@@ -19,5 +19,5 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Server rodando na porta ${PORT}`);
 });
