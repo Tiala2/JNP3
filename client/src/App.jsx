@@ -2,13 +2,18 @@ import React, { useState, useEffect } from "react";
 import GameGrid from "./components/GameGrid";
 import Login from "./components/Login";
 import styles from "./styles/survival.module.css";
-import { FaHeart, FaSkull, FaGhost, FaUserNinja, FaArrowUp, FaArrowDown, FaArrowLeft, FaArrowRight, FaCrosshairs } from "react-icons/fa";
+import { FaHeart, FaSkull, FaGhost, FaArrowUp, FaArrowDown, FaArrowLeft, FaArrowRight, FaCrosshairs, FaLightbulb } from "react-icons/fa";
+import { GiFlashlight } from "react-icons/gi"; // Adicione no topo do App.jsx
 
 const directions = {
   u: { x: 0, y: -1 },
   d: { x: 0, y: 1 },
   l: { x: -1, y: 0 },
   r: { x: 1, y: 0 },
+  ul: { x: -1, y: -1 },
+  ur: { x: 1, y: -1 },
+  dl: { x: -1, y: 1 },
+  dr: { x: 1, y: 1 },
 };
 
 const GRID_SIZE = 10;
@@ -21,12 +26,14 @@ const initialState = () => ({
   steps: 0,
   difficulty: 0.1,
   gameState: "playing",
+  ammo: 5, // munição inicial
 });
 
-function getRandomObject(difficulty, canSpawnMed) {
+function getRandomObject(difficulty, canSpawnMed, canSpawnAmmo) {
   const rand = Math.random();
   if (rand < difficulty) return "enemy";
   if (canSpawnMed && rand < difficulty + 0.05) return "med";
+  if (canSpawnAmmo && rand < difficulty + 0.10) return "ammo";
   return null;
 }
 
@@ -36,6 +43,8 @@ export default function App() {
   const [state, setState] = useState(initialState());
   const [ranking, setRanking] = useState([]);
   const [showRanking, setShowRanking] = useState(false);
+  const [lanterna, setLanterna] = useState(false); // novo estado
+  const [lastDir, setLastDir] = useState("d"); // direção inicial (baixo)
 
   // Conta monstros e curas no tabuleiro
   function countObjects(objects) {
@@ -50,18 +59,22 @@ export default function App() {
 
   function movePlayer(dir) {
     if (state.gameState !== "playing") return;
-    const { x, y } = state.player;
-    const dx = directions[dir].x;
-    const dy = directions[dir].y;
-    const newX = x + dx;
-    const newY = y + dy;
+    const move = directions[dir];
+    if (!move) return;
 
-    if (newX < 0 || newX >= GRID_SIZE || newY < 0 || newY >= GRID_SIZE) return;
+    const newX = state.player.x + move.x;
+    const newY = state.player.y + move.y;
+
+    // Limite do tabuleiro
+    if (newX < 0 || newX >= GRID_SIZE || newY < 0 || newY >= GRID_SIZE) {
+      return; // Não move se for sair do tabuleiro
+    }
 
     const newPos = { x: newX, y: newY };
     const key = `${newPos.x},${newPos.y}`;
     let newHealth = state.health;
     let newObjects = { ...state.objects };
+    let newAmmo = state.ammo;
 
     // Colisão com inimigo ou cura
     if (newObjects[key] === "enemy") {
@@ -70,6 +83,10 @@ export default function App() {
     }
     if (newObjects[key] === "med") {
       newHealth = Math.min(3, newHealth + 1);
+      delete newObjects[key];
+    }
+    if (newObjects[key] === "ammo") {
+      newAmmo = (state.ammo || 0) + 3; // ganha 3 munições
       delete newObjects[key];
     }
 
@@ -108,12 +125,17 @@ export default function App() {
         ) {
           // Só pode gerar cura se houver menos que metade do número de monstros
           const canSpawnMed = medCount < Math.floor((monsterCount + 1) / 2);
-          const obj = getRandomObject(state.difficulty, canSpawnMed);
+          // Conte quantas munições já existem
+          const ammoCount = Object.values(newObjects).filter(v => v === "ammo").length;
+          const canSpawnAmmo = ammoCount < 3; // limite de munição no tabuleiro
+          const obj = getRandomObject(state.difficulty, canSpawnMed, canSpawnAmmo);
           if (obj === "enemy") {
             updatedObjects[posKey] = "enemy";
             monstersAround++;
           } else if (obj === "med" && canSpawnMed) {
             updatedObjects[posKey] = "med";
+          } else if (obj === "ammo" && canSpawnAmmo) {
+            updatedObjects[posKey] = "ammo";
           }
         }
       }
@@ -135,11 +157,13 @@ export default function App() {
       steps: newSteps,
       difficulty: newDifficulty,
       gameState: newHealth <= 0 ? "lose" : "playing",
+      ammo: newAmmo,
     });
+    setLastDir(dir); // Salva a última direção
   }
 
   function attack() {
-    if (state.gameState !== "playing") return;
+    if (state.gameState !== "playing" || state.ammo <= 0) return;
     const { x, y } = state.player;
     const updatedObjects = { ...state.objects };
     for (let dy = -1; dy <= 1; dy++) {
@@ -151,7 +175,7 @@ export default function App() {
         }
       }
     }
-    setState({ ...state, objects: updatedObjects });
+    setState({ ...state, objects: updatedObjects, ammo: state.ammo - 1 });
   }
 
   function restart() {
@@ -306,17 +330,19 @@ export default function App() {
     <div className={styles.main_container}>
       <div className={styles.horizontal_container}>
         <div className={styles.grid_area}>
-          <GameGrid player={state.player} objects={state.objects} visited={state.visited} />
+          <GameGrid
+            player={state.player}
+            objects={state.objects}
+            lanterna={lanterna}
+            lastDir={lastDir}
+          />
         </div>
         <div className={styles.side_panel}>
+          {/* Botão Reiniciar acima do título */}
+          <button onClick={restart} className={styles.restart} style={{ alignSelf: "flex-end", marginBottom: 8 }}>
+            Reiniciar
+          </button>
           <h1>Tente sobreviver</h1>
-          <div className={styles.lives_display}>
-            <div>
-              {[...Array(state.health)].map((_, i) => (
-                <FaHeart key={i} color="#e53935" size={32} style={{ margin: "0 4px" }} />
-              ))}
-            </div>
-          </div>
           <div className={styles.monster_counter}>
             <div>
               <FaSkull color="#fff" size={28} /> Monstros: {monstersVisited}
@@ -324,23 +350,38 @@ export default function App() {
           </div>
           <div className={styles.controls}>
             <div className={styles.dpad}>
-              <div></div>
+              <button onClick={() => movePlayer("ul")}><FaArrowUp style={{ transform: "rotate(-45deg)" }} size={24} /></button>
               <button onClick={() => movePlayer("u")}><FaArrowUp size={24} /></button>
-              <div></div>
+              <button onClick={() => movePlayer("ur")}><FaArrowUp style={{ transform: "rotate(45deg)" }} size={24} /></button>
               <button onClick={() => movePlayer("l")}><FaArrowLeft size={24} /></button>
               <div></div>
               <button onClick={() => movePlayer("r")}><FaArrowRight size={24} /></button>
-              <div></div>
+              <button onClick={() => movePlayer("dl")}><FaArrowDown style={{ transform: "rotate(45deg)" }} size={24} /></button>
               <button onClick={() => movePlayer("d")}><FaArrowDown size={24} /></button>
-              <div></div>
+              <button onClick={() => movePlayer("dr")}><FaArrowDown style={{ transform: "rotate(-45deg)" }} size={24} /></button>
             </div>
-            <button className={styles.shoot} onClick={attack}>
-              <FaCrosshairs size={20} style={{ marginRight: 8 }} />
-              ATIRAR
-            </button>
+            {/* Botões de ação em linha */}
+            <div style={{ display: "flex", gap: 12, marginTop: 16 }}>
+              <button
+                className={styles.shoot}
+                title="Atirar"
+                disabled={state.ammo <= 0}
+                onClick={attack} // <-- Corrigido: chama a função de ataque
+              >
+                <FaCrosshairs size={20} style={{ marginRight: 8 }} />
+                {state.ammo}
+              </button>
+              <button
+                className={styles.shoot}
+                style={{ background: lanterna ? "#ffd600" : "#222", color: lanterna ? "#222" : "#ecebe6" }}
+                onClick={() => setLanterna(l => !l)}
+                title={lanterna ? "Desligar Lanterna" : "Ligar Lanterna"}
+              >
+                <GiFlashlight size={20} style={{ marginRight: 8 }} /> {/* <-- Corrigido: ícone de lanterna */}
+              </button>
+            </div>
           </div>
           {state.gameState === "lose" && <h2 style={{ color: "red" }}>Você perdeu!</h2>}
-          <button onClick={restart} className={styles.restart}>Reiniciar</button>
           <button onClick={handleRestartMenu} className={styles.restart}>Sair para Menu</button>
         </div>
       </div>
