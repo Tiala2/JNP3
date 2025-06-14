@@ -2,25 +2,27 @@ import React, { useState } from "react";
 import styles from "../styles/survival.module.css";
 
 export default function Login({ onLogin }) {
-  const [user, setUser] = useState("");
+  const [username, setUsername] = useState("");
 
   function handleSubmit(e) {
     e.preventDefault();
-    if (user.trim()) onLogin(user.trim());
+    if (username.trim()) onLogin(username.trim());
   }
 
   return (
     <div className={styles.login_container}>
-      <h1>LOGIN</h1>
-      <form onSubmit={handleSubmit}>
+      <form className={styles.login_box} onSubmit={handleSubmit}>
+        <h1>LOGIN</h1>
         <input
-          type="text"
-          placeholder="Seu nome"
-          value={user}
-          onChange={e => setUser(e.target.value)}
           className={styles.login_input}
+          type="text"
+          placeholder="Seu Nome"
+          value={username}
+          onChange={e => setUsername(e.target.value)}
         />
-        <button type="submit" className={styles.shoot}>Entrar</button>
+        <button className={styles.pixel_button} type="submit">
+          Entrar
+        </button>
       </form>
     </div>
   );

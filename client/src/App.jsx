@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import GameGrid from "./components/GameGrid";
 import Login from "./components/Login";
-import styles from "./styles/survival.module.css";
 import { FaHeart, FaSkull, FaGhost, FaArrowUp, FaArrowDown, FaArrowLeft, FaArrowRight, FaCrosshairs, FaLightbulb } from "react-icons/fa";
 import { GiFlashlight } from "react-icons/gi"; // Adicione no topo do App.jsx
+import styles from './styles/survival.module.css';
 
 const directions = {
   u: { x: 0, y: -1 },
@@ -306,30 +306,33 @@ export default function App() {
   if (screen === "menu") {
     return (
       <div className={styles.menu_container}>
-        <h1>Bem-vindo(a), {user}!</h1>
-        <button className={styles.shoot} onClick={handleStart}>Iniciar Jogo</button>
-        <button className={styles.restart} onClick={handleExit}>Sair</button>
-        {showRanking && (
-          <div className={styles.menu_container}>
-            <h2>Ranking</h2>
-            <ol>
-              {ranking.map((r, i) => (
-                <li key={r.username}>{r.username}: {r.score}</li>
-              ))}
-            </ol>
-            <button className={styles.restart} onClick={handleCloseRanking}>Fechar</button>
-          </div>
-        )}
-        <button className={styles.shoot} onClick={fetchRanking}>Ver Ranking</button>
+        <div className={styles.menu_box}>
+          <h1>Bem-vindo(a), {user}!</h1>
+          <button className={styles.pixel_button} type="button" onClick={handleStart}>Iniciar Jogo</button>
+          <button className={styles.pixel_button} type="button" onClick={handleExit}>Sair</button>
+          <button className={styles.pixel_button} type="button" onClick={fetchRanking}>Ver Ranking</button>
+          {showRanking && (
+            <div style={{ marginTop: 16, width: "100%" }}>
+              <h2>Ranking</h2>
+              <ol>
+                {ranking.map((r, i) => (
+                  <li key={r.username}>{r.username}: {r.score}</li>
+                ))}
+              </ol>
+              <button className={styles.pixel_button} type="button" onClick={handleCloseRanking}>Fechar</button>
+            </div>
+          )}
+        </div>
       </div>
     );
   }
 
   // Tela do jogo
   return (
-    <div className={styles.main_container}>
+    <div className="main_container">
       <div className={styles.horizontal_container}>
         <div className={styles.grid_area}>
+          {/* grade do jogo */}
           <GameGrid
             player={state.player}
             objects={state.objects}
@@ -338,15 +341,14 @@ export default function App() {
           />
         </div>
         <div className={styles.side_panel}>
-          {/* Botão Reiniciar acima do título */}
-          <button onClick={restart} className={styles.restart} style={{ alignSelf: "flex-end", marginBottom: 8 }}>
-            Reiniciar
-          </button>
+          {/* painel lateral */}
+          <div className={styles.top_buttons}>
+            <button onClick={restart} className={styles.pixel_button}>Reiniciar</button>
+            <button onClick={handleRestartMenu} className={styles.pixel_button}>Sair para Menu</button>
+          </div>
           <h1>Tente sobreviver</h1>
           <div className={styles.monster_counter}>
-            <div>
-              <FaSkull color="#fff" size={28} /> Monstros: {monstersVisited}
-            </div>
+            <FaSkull color="#fff" size={28} /> Monstros: {monstersVisited}
           </div>
           <div className={styles.controls}>
             <div className={styles.dpad}>
@@ -360,13 +362,12 @@ export default function App() {
               <button onClick={() => movePlayer("d")}><FaArrowDown size={24} /></button>
               <button onClick={() => movePlayer("dr")}><FaArrowDown style={{ transform: "rotate(-45deg)" }} size={24} /></button>
             </div>
-            {/* Botões de ação em linha */}
-            <div style={{ display: "flex", gap: 12, marginTop: 16 }}>
+            <div className={styles.action_buttons}>
               <button
                 className={styles.shoot}
                 title="Atirar"
                 disabled={state.ammo <= 0}
-                onClick={attack} // <-- Corrigido: chama a função de ataque
+                onClick={attack}
               >
                 <FaCrosshairs size={20} style={{ marginRight: 8 }} />
                 {state.ammo}
@@ -377,12 +378,11 @@ export default function App() {
                 onClick={() => setLanterna(l => !l)}
                 title={lanterna ? "Desligar Lanterna" : "Ligar Lanterna"}
               >
-                <GiFlashlight size={20} style={{ marginRight: 8 }} /> {/* <-- Corrigido: ícone de lanterna */}
+                <GiFlashlight size={20} style={{ marginRight: 8 }} />
               </button>
             </div>
           </div>
           {state.gameState === "lose" && <h2 style={{ color: "red" }}>Você perdeu!</h2>}
-          <button onClick={handleRestartMenu} className={styles.restart}>Sair para Menu</button>
         </div>
       </div>
     </div>

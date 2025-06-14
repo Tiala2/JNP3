@@ -5,24 +5,35 @@ html, body, #root {
   height: 100%;
   margin: 0;
   padding: 0;
-  background: #2d1846;
+  background: url('/cemiterio.jpg') no-repeat center center fixed;
+  background-size: cover;
   color: #fffbe6;
   font-family: 'Press Start 2P', 'VT323', 'Montserrat', Arial, sans-serif;
   overflow: hidden;
   box-sizing: border-box;
+  position: relative;
+}
+
+
+.horizontal_container {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: center;
+  width: 100vw;
+  height: 100vh;
+  gap: 4vw;
 }
 
 .grid_area {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center; /* Centraliza verticalmente */
-  width: 100%;
-  height: 100%;
+  justify-content: center;
   max-width: 85vh;
   max-height: 85vh;
-  overflow: hidden;
-  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
 }
 
 #root, .main_container {
@@ -118,8 +129,8 @@ h2[style*="color: red"] {
   color: #fffbe6;
   border: 2px solid #ffd600;
   border-radius: 8px;
-  width: 48px;
-  height: 48px;
+  width: 60px;
+  height: 60px;
   box-shadow: 0 0 8px #ffd600;
   cursor: pointer;
   transition: background 0.2s;
@@ -130,12 +141,14 @@ h2[style*="color: red"] {
 }
 
 .shoot {
-  font-size: 1.2rem;
+  font-size: 1.8rem;
   background: #2d1846;
   color: #fffbe6;
   border: 2px solid #ffd600;
   border-radius: 8px;
-  padding: 12px 32px;
+  padding: 8px 18px;
+  width: 70px;
+  height: 70px;
   margin-left: 0;
   box-shadow: 0 0 8px #ffd600;
   cursor: pointer;
@@ -162,27 +175,17 @@ h2[style*="color: red"] {
   color: #2d1846;
 }
 
-.horizontal_container {
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start; /* Garante que o grid não estique verticalmente */
-  justify-content: center;
-  width: 100vw;
-  height: 100vh;
-  gap: 4vw;
-}
-
 .side_panel {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  min-width: 280px;
-  gap: 1vw;
-  background: rgba(45,24,70,0.98);
-  border-radius: 16px;
+  min-width: 320px;
   padding: 2vw 2vw;
   box-shadow: 0 0 16px #1a0c2d;
+  border-radius: 16px;
+  background: none; /* sem fundo opaco */
+  gap: 1vw;
 }
 
 .monster_counter {
@@ -201,24 +204,78 @@ h2[style*="color: red"] {
   justify-content: center;
   height: 100vh;
   gap: 2vw;
+  background: url('/cemiterio.jpg') no-repeat center center fixed;
+  background-size: cover;
+}
+
+.login_box, .menu_box {
+  background: rgba(121, 86, 163, 0.582);
+  border-radius: 16px;
+  padding: 3vw 4vw;
+  box-shadow: 0 0 16px #1a0c2d;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2vw;
 }
 
 .login_input {
-  font-size: 1.2rem;
-  padding: 10px 20px;
+  font-size: 1.1rem;
+  padding: 10px 18px;
   border-radius: 8px;
   border: 2px solid #ffd600;
-  margin-bottom: 1vw;
   background: #2d1846;
   color: #fffbe6;
+  margin-bottom: 1vw;
+  width: 220px;
 }
 
-.main_container, .horizontal_container, .side_panel, .grid_area {
-  overflow: hidden;
+.pixel_button {
+  font-family: 'Press Start 2P', Arial, sans-serif;
+  font-size: 1rem;
+  background: #2d1846;
+  color: #ffd600;
+  border: 2px solid #ffd600;
+  border-radius: 8px;
+  padding: 10px 28px;
+  margin: 0 8px;
+  cursor: pointer;
+  box-shadow: 0 0 8px #ffd600;
+  transition: background 0.2s, color 0.2s;
+}
+.pixel_button:active, .pixel_button.selected {
+  background: #ffd600;
+  color: #2d1846;
 }
 
-.dpad button, .shoot {
-  aspect-ratio: 1/1;
+.dpad button {
+  width: 60px;
+  height: 60px;
+  font-size: 1.2rem;
+}
+
+.dpad {
+  grid-template-columns: repeat(3, 56px);
+  grid-template-rows: repeat(3, 56px);
+  gap: 16px;
+}
+
+.action_buttons {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  margin-top: 12px;
+  width: 100%;
+  justify-content: center;
+}
+
+.top_buttons {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  width: 100%;
+  justify-content: flex-end;
+  margin-bottom: 8px;
 }
 
 @media (max-width: 900px) {
