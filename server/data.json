@@ -59,6 +59,25 @@
       "password": "123456",
       "progresso": {},
       "score": 0
+    },
+    "mk": {
+      "password": "123456",
+      "progresso": {
+        "player": {
+          "x": 0,
+          "y": 0
+        },
+        "objects": {},
+        "visited": {},
+        "health": 3,
+        "steps": 0,
+        "difficulty": 0.1,
+        "gameState": "playing",
+        "ammo": 5,
+        "monstersKilled": 0
+      },
+      "score": 11,
+      "monstersKilled": 3
     }
   },
   "rankings": [
@@ -66,6 +85,11 @@
       "username": "tiii",
       "score": 21,
       "monstersKilled": 12
+    },
+    {
+      "username": "mk",
+      "score": 11,
+      "monstersKilled": 3
     }
   ]
 }
