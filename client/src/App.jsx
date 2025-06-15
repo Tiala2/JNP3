@@ -26,7 +26,8 @@ const initialState = () => ({
   steps: 0,
   difficulty: 0.1,
   gameState: "playing",
-  ammo: 5, // munição inicial
+  ammo: 5,
+  monstersKilled: 0, // <-- novo campo
 });
 
 function getRandomObject(difficulty, canSpawnMed, canSpawnAmmo) {
@@ -38,8 +39,8 @@ function getRandomObject(difficulty, canSpawnMed, canSpawnAmmo) {
 }
 
 export default function App() {
-  const [screen, setScreen] = useState("login"); // "login", "menu", "game"
-  const [user, setUser] = useState("");
+  const [user, setUser] = useState(() => localStorage.getItem("user") || "");
+  const [screen, setScreen] = useState(() => (localStorage.getItem("user") ? "menu" : "login"));
   const [state, setState] = useState(initialState());
   const [ranking, setRanking] = useState([]);
   const [showRanking, setShowRanking] = useState(false);
@@ -165,17 +166,26 @@ export default function App() {
   function attack() {
     if (state.gameState !== "playing" || state.ammo <= 0) return;
     const { x, y } = state.player;
-    const updatedObjects = { ...state.objects };
-    for (let dy = -1; dy <= 1; dy++) {
-      for (let dx = -1; dx <= 1; dx++) {
-        if (dx === 0 && dy === 0) continue;
-        const key = `${x + dx},${y + dy}`;
-        if (updatedObjects[key] === "enemy") {
-          delete updatedObjects[key];
+    setState(prev => {
+      const updatedObjects = { ...prev.objects };
+      let killed = 0;
+      for (let dy = -1; dy <= 1; dy++) {
+        for (let dx = -1; dx <= 1; dx++) {
+          if (dx === 0 && dy === 0) continue;
+          const key = `${x + dx},${y + dy}`;
+          if (updatedObjects[key] === "enemy") {
+            delete updatedObjects[key];
+            killed++;
+          }
         }
       }
-    }
-    setState({ ...state, objects: updatedObjects, ammo: state.ammo - 1 });
+      return {
+        ...prev,
+        objects: updatedObjects,
+        ammo: prev.ammo - 1,
+        monstersKilled: (prev.monstersKilled || 0) + killed,
+      };
+    });
   }
 
   function restart() {
@@ -270,15 +280,34 @@ export default function App() {
   // Funções para navegação
   function handleLogin(username) {
     setUser(username);
+    localStorage.setItem("user", username);
     setScreen("menu");
     setState(initialState());
   }
   function handleStart() {
-    setScreen("game");
-    setState(initialState());
+    setScreen("loading");
+    fetch(`/api/progress/${user}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.progress && Object.keys(data.progress).length > 0) {
+          setState({
+            ...initialState(),
+            ...data.progress,
+            monstersKilled: data.progress.monstersKilled || 0,
+          });
+        } else {
+          setState(initialState());
+        }
+        setScreen("game");
+      })
+      .catch(() => {
+        setState(initialState());
+        setScreen("game");
+      });
   }
   function handleExit() {
     setUser("");
+    localStorage.removeItem("user");
     setScreen("login");
     setState(initialState());
   }
@@ -298,7 +327,43 @@ export default function App() {
     setShowRanking(false);
   }
 
+  // Salva o progresso no servidor sempre que o estado mudar
+  useEffect(() => {
+    if (user && screen === "game") {
+      fetch("/api/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: user, progress: state }),
+      });
+    }
+  }, [state, user, screen]);
+
+  // Salva a pontuação no servidor quando o jogo termina
+  useEffect(() => {
+    if (user && state.gameState === "lose") {
+      fetch("/api/score", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: user,
+          score: state.steps,
+          monstersKilled: state.monstersKilled || 0, // <-- usa o campo correto
+        }),
+      });
+    }
+  }, [state.gameState, user, state.steps, state.monstersKilled]);
+
   // Troca de telas
+  if (screen === "loading") {
+    return (
+      <div className={styles.menu_container}>
+        <div className={styles.menu_box}>
+          <h2>Carregando...</h2>
+        </div>
+      </div>
+    );
+  }
+
   if (screen === "login") {
     return <Login onLogin={handleLogin} />;
   }
@@ -316,7 +381,9 @@ export default function App() {
               <h2>Ranking</h2>
               <ol>
                 {ranking.map((r, i) => (
-                  <li key={r.username}>{r.username}: {r.score}</li>
+                  <li key={r.username}>
+                    {r.username}: {r.monstersKilled || 0} monstros mortos
+                  </li>
                 ))}
               </ol>
               <button className={styles.pixel_button} type="button" onClick={handleCloseRanking}>Fechar</button>
@@ -348,7 +415,7 @@ export default function App() {
           </div>
           <h1>Tente sobreviver</h1>
           <div className={styles.monster_counter}>
-            <FaSkull color="#fff" size={28} /> Monstros: {monstersVisited}
+            <FaSkull color="#fff" size={28} /> Monstros mortos: {state.monstersKilled || 0}
           </div>
           <div className={styles.controls}>
             <div className={styles.dpad}>
