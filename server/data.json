@@ -78,6 +78,119 @@
       },
       "score": 11,
       "monstersKilled": 3
+    },
+    "ana": {
+      "password": "123456",
+      "progresso": {
+        "player": {
+          "x": 4,
+          "y": 7
+        },
+        "objects": {
+          "0,2": "enemy",
+          "1,1": "ammo",
+          "3,3": "med",
+          "2,4": "enemy",
+          "1,3": "ammo",
+          "3,0": "ammo",
+          "2,1": "med",
+          "2,2": "enemy",
+          "3,2": "enemy",
+          "4,2": "enemy",
+          "5,3": "enemy",
+          "5,2": "med",
+          "7,3": "enemy",
+          "5,5": "enemy",
+          "6,7": "enemy",
+          "3,7": "med",
+          "4,8": "enemy"
+        },
+        "visited": {
+          "1,1": true,
+          "2,2": true,
+          "3,3": true,
+          "4,4": true,
+          "3,4": true,
+          "2,4": true,
+          "2,3": true,
+          "2,1": true,
+          "3,2": true,
+          "4,3": true,
+          "5,4": true,
+          "6,5": true,
+          "6,4": true,
+          "6,3": true,
+          "6,2": true,
+          "6,1": true,
+          "5,6": true,
+          "4,7": true
+        },
+        "health": 0,
+        "steps": 23,
+        "difficulty": 0.33,
+        "gameState": "lose",
+        "ammo": 2,
+        "monstersKilled": 9
+      },
+      "score": 23,
+      "monstersKilled": 9
+    },
+    "Tl": {
+      "password": "100303",
+      "progresso": {
+        "player": {
+          "x": 8,
+          "y": 8
+        },
+        "objects": {
+          "2,0": "ammo",
+          "0,2": "enemy",
+          "1,1": "enemy",
+          "2,4": "enemy",
+          "3,4": "enemy",
+          "4,6": "ammo",
+          "3,6": "med",
+          "7,7": "med",
+          "8,7": "ammo"
+        },
+        "visited": {
+          "1,1": true,
+          "2,2": true,
+          "3,3": true,
+          "4,4": true,
+          "5,5": true,
+          "6,6": true,
+          "7,7": true,
+          "8,8": true
+        },
+        "health": 0,
+        "steps": 8,
+        "difficulty": 0.18,
+        "gameState": "lose",
+        "ammo": 8,
+        "monstersKilled": 0
+      },
+      "score": 8,
+      "monstersKilled": 0
+    },
+    "raul": {
+      "password": "100303",
+      "progresso": {
+        "player": {
+          "x": 0,
+          "y": 0
+        },
+        "objects": {},
+        "visited": {},
+        "health": 3,
+        "steps": 0,
+        "difficulty": 0.1,
+        "gameState": "playing",
+        "ammo": 5,
+        "monstersKilled": 0
+      },
+      "score": 14,
+      "monstersKilled": 3
     }
   },
   "rankings": [
@@ -87,9 +200,24 @@
       "monstersKilled": 12
     },
     {
+      "username": "ana",
+      "score": 23,
+      "monstersKilled": 9
+    },
+    {
       "username": "mk",
       "score": 11,
       "monstersKilled": 3
+    },
+    {
+      "username": "raul",
+      "score": 14,
+      "monstersKilled": 3
+    },
+    {
+      "username": "Tl",
+      "score": 8,
+      "monstersKilled": 0
     }
   ]
 }

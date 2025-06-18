@@ -415,7 +415,12 @@ export default function App() {
           </div>
           <h1>Tente sobreviver</h1>
           <div className={styles.monster_counter}>
-            <FaSkull color="#fff" size={28} /> Monstros mortos: {state.monstersKilled || 0}
+            <FaSkull color="#fff" size={20} /> Monstros mortos: {state.monstersKilled || 0}
+          </div>
+          <div className={styles.lives_display}>
+            {Array.from({ length: state.health }).map((_, i) => (
+              <FaHeart key={i} color="#e53935" size={20} style={{ marginRight: 4 }} />
+            ))}
           </div>
           <div className={styles.controls}>
             <div className={styles.dpad}>
